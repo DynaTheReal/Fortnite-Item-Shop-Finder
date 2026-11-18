@@ -2,455 +2,612 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Fortnite Item Shop Finder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg1:#0b1d4f;--bg2:#1a4fc4;--panel:rgba(5,14,45,.55);
-    --txt:#fff;--mut:#9fb3e6;--gold:#ffe23d;--ok:#4cff8f;
+    --bg:#081335;--bg2:#0f2a7a;--glass:rgba(255,255,255,.06);--line:rgba(255,255,255,.09);
+    --txt:#fff;--mut:#93a3cf;--gold:#ffe23d;--ok:#4cff8f;--r:14px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0}
-  body{
-    font-family:Inter,system-ui,sans-serif;color:var(--txt);min-height:100vh;
-    background:
-      radial-gradient(1200px 600px at 50% -10%, #3d7dff 0%, transparent 60%),
-      linear-gradient(180deg,var(--bg2) 0%,var(--bg1) 55%,#060f2e 100%) fixed;
-  }
-  .wrap{max-width:1280px;margin:0 auto;padding:18px 16px 60px}
+  html,body{margin:0;overflow-x:hidden;overscroll-behavior:none;touch-action:pan-y;-webkit-text-size-adjust:100%}
+  body{font-family:Inter,system-ui,sans-serif;color:var(--txt);min-height:100vh;user-select:none;-webkit-user-select:none;
+    background:radial-gradient(900px 500px at 50% -120px,#2b5fe0 0%,transparent 70%),linear-gradient(180deg,var(--bg2),var(--bg) 420px) fixed;}
+  input{user-select:text;-webkit-user-select:text}
+  button{touch-action:manipulation;font-family:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px 60px}
 
-  /* Header */
-  header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-  .title{font-family:Anton,Impact,sans-serif;font-size:clamp(38px,8vw,64px);line-height:.9;letter-spacing:1px;text-transform:uppercase;font-style:italic;text-shadow:0 4px 0 rgba(0,0,0,.25)}
-  .title small{display:block;font-size:.32em;letter-spacing:3px;color:var(--mut);font-style:normal;margin-top:6px}
-  .timer{background:var(--panel);border-radius:10px;padding:8px 12px;font-weight:700;font-size:14px;display:flex;gap:8px;align-items:center;backdrop-filter:blur(6px)}
-  .timer b{font-family:Anton,sans-serif;font-size:20px;letter-spacing:1px;color:var(--gold)}
+  /* Kopf */
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .title{font-family:Anton,Impact,sans-serif;font-size:clamp(30px,7vw,46px);line-height:.95;letter-spacing:.5px;text-transform:uppercase;font-style:italic}
+  .title small{display:block;font-family:Inter,sans-serif;font-style:normal;font-weight:700;font-size:12px;letter-spacing:.5px;text-transform:none;color:var(--mut);margin-top:6px}
+  .timer{flex:none;background:var(--glass);border:1px solid var(--line);border-radius:12px;padding:8px 12px;text-align:center;font-size:11px;font-weight:700;color:var(--mut)}
+  .timer b{display:block;font-family:Anton,sans-serif;font-size:18px;letter-spacing:1px;color:#fff;font-weight:400}
 
-  /* Toolbar */
-  .bar{position:sticky;top:0;z-index:20;padding:10px 0;margin:0 -16px 6px;padding-left:16px;padding-right:16px;
-       background:linear-gradient(180deg,rgba(11,29,79,.95),rgba(11,29,79,.75));backdrop-filter:blur(10px)}
-  .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px}
+  .season{display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:12px}
+  .season .ch{flex:1;font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+  .season .ch span{display:block;font-family:Anton,sans-serif;font-size:18px;color:#fff;letter-spacing:.5px;margin-top:2px;font-weight:400}
+  .season .end{text-align:right;font-size:11px;font-weight:700;color:var(--mut)}
+  .season .end b{display:block;font-family:Anton,sans-serif;font-size:18px;color:var(--gold);letter-spacing:.5px;font-weight:400;margin-top:2px}
+
+  /* Navigation */
+  .nav{display:flex;gap:4px;padding:4px;background:var(--glass);border:1px solid var(--line);border-radius:12px;margin-bottom:6px}
+  .nav button{flex:1;border:0;border-radius:9px;padding:10px 6px;font-weight:900;font-size:14px;letter-spacing:.3px;color:var(--mut);background:transparent;cursor:pointer;transition:.18s}
+  .nav button.on{background:#fff;color:#0b1d4f}
+
+  .bar{position:sticky;top:0;z-index:20;margin:0 -16px 4px;padding:10px 16px 10px;background:rgba(8,19,53,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .search{position:relative;margin-bottom:10px}
+  .search input{width:100%;background:var(--glass);border:1px solid var(--line);border-radius:12px;color:#fff;padding:12px 44px 12px 40px;
+       font:600 16px Inter,sans-serif;outline:none;transition:.15s}
+  .search::before{content:"⌕";position:absolute;left:14px;top:50%;transform:translateY(-52%);font-size:20px;color:var(--mut);pointer-events:none}
+  .search input:focus{border-color:rgba(255,226,61,.7);background:rgba(255,255,255,.09)}
+  .search input::placeholder{color:var(--mut)}
+  .clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:900;cursor:pointer;display:none}
+  .clear.show{display:block}
+  .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
   .tabs::-webkit-scrollbar{display:none}
-  .tab{flex:none;font-family:Anton,sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:15px;
-       padding:8px 14px;border-radius:8px;background:rgba(255,255,255,.08);color:#cfe0ff;border:0;cursor:pointer;transition:.15s}
-  .tab.on{background:var(--gold);color:#1a1300;transform:skew(-6deg)}
-  .tab .c{opacity:.6;font-size:12px;margin-left:4px}
-  .search{display:flex;gap:8px}
-  .search input{flex:1;background:rgba(255,255,255,.1);border:2px solid transparent;border-radius:10px;color:#fff;
-       padding:10px 12px;font:600 15px Inter,sans-serif;outline:none}
-  .search input:focus{border-color:var(--gold)}
-  .search input::placeholder{color:#9fb3e6}
+  .tab{flex:none;font-weight:700;font-size:13px;padding:7px 12px;border-radius:999px;background:transparent;border:1px solid var(--line);color:#cfd9f7;cursor:pointer;transition:.15s}
+  .tab.on{background:var(--gold);border-color:var(--gold);color:#1a1300}
+  .tab .c{opacity:.55;font-size:11px;margin-left:5px}
 
-  /* Wishlist banner */
-  .wish{background:linear-gradient(90deg,#0f6b3a,#14894a);border-radius:14px;padding:12px 14px;margin:14px 0 4px;display:none;
-        box-shadow:0 6px 0 rgba(0,0,0,.2)}
-  .wish.show{display:block}
-  .wish h3{margin:0 0 4px;font-family:Anton,sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:20px}
-  .wish p{margin:0;font-size:14px;opacity:.9}
+  /* Hinweise */
+  .banner{display:none;align-items:center;gap:12px;border-radius:var(--r);padding:11px 14px;margin:10px 0 0;border:1px solid var(--line);background:var(--glass)}
+  .banner.show{display:flex}
+  .banner h3{margin:0;font-size:14px;font-weight:900}
+  .banner p{margin:2px 0 0;font-size:13px;color:#cfd9f7}
+  .banner .ic{font-size:22px}
+  #wish{border-color:rgba(76,255,143,.45);background:rgba(76,255,143,.08)}
+  #pirate{cursor:pointer;border:0;color:#3a2600;position:relative;overflow:hidden;
+     background:linear-gradient(135deg,#fff6c4 0%,#ffe066 25%,#f7c21a 55%,#ffe680 75%,#e9a90b 100%);
+     box-shadow:0 6px 20px rgba(247,194,26,.25),inset 0 1px 0 rgba(255,255,255,.8)}
+  #pirate::after{content:"";position:absolute;top:0;left:-60%;width:35%;height:100%;
+     background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg);animation:shine 3.2s ease-in-out infinite}
+  #pirate > *{position:relative;z-index:1}
+  #pirate p{color:#5a3d00}
+  #pirate b{color:#2e1e00}
 
-  /* Sections */
+  /* Bereiche */
   section{margin-top:22px}
-  section h2{font-family:Anton,sans-serif;text-transform:uppercase;letter-spacing:1.5px;font-size:24px;margin:0 0 10px;
-             display:flex;align-items:center;gap:10px;font-style:italic}
-  section h2::after{content:"";flex:1;height:3px;background:linear-gradient(90deg,rgba(255,255,255,.35),transparent);border-radius:3px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));grid-auto-flow:dense;gap:8px}
-  @media(min-width:700px){.grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
+  section h2{font-family:Anton,sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:19px;font-weight:400;margin:0 0 10px;color:#e8eeff}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));grid-auto-flow:dense;gap:10px}
+  @media(min-width:700px){.grid{grid-template-columns:repeat(auto-fill,minmax(176px,1fr))}}
 
-  /* Tiles */
-  .tile{position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;cursor:pointer;
-        background:linear-gradient(180deg,var(--c1,#6a6a6a),var(--c2,#2f2f2f));
-        box-shadow:inset 0 0 0 2px rgba(255,255,255,.12);transition:transform .15s, box-shadow .15s}
+  /* Karten */
+  .tile{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;cursor:pointer;
+        background:radial-gradient(110% 80% at 50% 30%,var(--c1,#6a6a6a) 0%,var(--c2,#2f2f2f) 100%);
+        transition:transform .15s ease;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+  .tile::before{content:"";position:absolute;inset:0;border-radius:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);z-index:3;pointer-events:none;transition:.15s}
+  .tile::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--c1);z-index:3}
   .tile.wide{grid-column:span 2;aspect-ratio:6/4}
-  .tile:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 3px #fff,0 10px 20px rgba(0,0,0,.35)}
+  @media(hover:hover){.tile:hover{transform:translateY(-3px)}.tile:hover::before{box-shadow:inset 0 0 0 2px #fff}}
+  .tile:active{transform:scale(.96)}
   .tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top}
-  .tile .shade{position:absolute;left:0;right:0;bottom:0;height:48%;background:linear-gradient(180deg,transparent,rgba(0,0,0,.85))}
-  .tile .info{position:absolute;left:0;right:0;bottom:0;padding:8px 10px}
-  .tile .name{font-family:Anton,sans-serif;text-transform:uppercase;font-size:clamp(15px,2.6vw,19px);line-height:1.05;
-              letter-spacing:.5px;text-shadow:0 2px 3px rgba(0,0,0,.6);word-break:break-word}
-  .tile .type{font-size:11px;font-weight:700;color:#d6e2ff;opacity:.85;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
-  .price{display:flex;align-items:center;gap:5px;margin-top:5px;font-weight:900;font-size:14px}
-  .price img{position:static;width:18px;height:18px}
-  .price s{opacity:.55;font-weight:700;font-size:12px}
-  .tag{position:absolute;top:8px;left:8px;background:var(--gold);color:#1a1300;font-family:Anton,sans-serif;
-       text-transform:uppercase;font-size:12px;letter-spacing:.5px;padding:3px 7px;border-radius:5px;transform:skew(-6deg)}
-  .star{position:absolute;top:6px;right:6px;width:32px;height:32px;border-radius:50%;border:0;background:rgba(0,0,0,.35);
-        color:#fff;font-size:17px;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(4px)}
+  .tile .shade{position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(180deg,transparent,rgba(4,10,30,.88) 75%)}
+  .tile .info{position:absolute;left:0;right:0;bottom:0;padding:10px 11px 12px;z-index:2}
+  .tile .name{font-family:Anton,sans-serif;text-transform:uppercase;font-size:clamp(15px,2.4vw,17px);line-height:1.08;letter-spacing:.4px;word-break:break-word}
+  .price{display:flex;align-items:center;gap:5px;margin-top:5px;font-weight:900;font-size:13px}
+  .price img{position:static;width:16px;height:16px}
+  .price s{opacity:.5;font-weight:700;font-size:11px}
+  .meta{font-size:11px;font-weight:700;margin-top:5px;color:#c7d3f5}
+  .meta.live{color:var(--ok)}
+  .tag{position:absolute;top:8px;left:8px;z-index:2;background:var(--gold);color:#1a1300;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;padding:3px 7px;border-radius:6px}
+  .star{position:absolute;top:7px;right:7px;z-index:4;width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.28);
+        color:rgba(255,255,255,.8);font-size:14px;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(4px)}
   .star.on{background:var(--gold);color:#1a1300}
-  .tile.hit{box-shadow:inset 0 0 0 3px var(--ok),0 0 18px rgba(76,255,143,.5)}
+  .tile.hit::before{box-shadow:inset 0 0 0 2px var(--ok)}
 
-  .msg{text-align:center;padding:60px 10px;color:var(--mut);font-weight:700}
-  .loader{width:44px;height:44px;border:4px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;
-          margin:0 auto 14px;animation:spin 1s linear infinite}
+  .msg{text-align:center;padding:48px 10px;color:var(--mut);font-weight:600;font-size:14px}
+  .msg.s{padding:18px 10px;background:var(--glass);border:1px solid var(--line);border-radius:var(--r)}
+  .loader{width:34px;height:34px;border:3px solid rgba(255,255,255,.15);border-top-color:var(--gold);border-radius:50%;margin:0 auto 12px;animation:spin .9s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  /* Modal */
-  .modal{position:fixed;inset:0;background:rgba(2,8,30,.8);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
-  .modal.show{display:flex}
-  .sheet{width:min(460px,100%);border-radius:16px;overflow:hidden;background:#0c1a48;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-  .sheet .art{position:relative;aspect-ratio:1;background:linear-gradient(180deg,var(--c1,#555),var(--c2,#222))}
-  .sheet .art img{width:100%;height:100%;object-fit:contain}
-  .sheet .body{padding:14px 16px 16px}
-  .sheet h3{margin:0;font-family:Anton,sans-serif;text-transform:uppercase;font-size:30px;letter-spacing:1px;line-height:1}
-  .sheet .sub{color:var(--mut);font-weight:700;font-size:13px;text-transform:uppercase;margin-top:4px}
-  .sheet .desc{margin:10px 0;font-size:14px;color:#dbe5ff;font-style:italic}
-  .sheet ul{list-style:none;padding:0;margin:10px 0;font-size:14px}
-  .sheet li{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08)}
-  .sheet li span:first-child{color:var(--mut)}
-  .btns{display:flex;gap:8px;margin-top:12px}
-  .btn{flex:1;border:0;border-radius:10px;padding:12px;font-family:Anton,sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:16px;cursor:pointer}
+  /* Detail-Ansicht */
+  .modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:14px;background:rgba(3,8,26,.8);backdrop-filter:blur(8px);overscroll-behavior:contain}
+  .modal.show{display:flex;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0}}
+  .sheet{width:min(440px,100%);max-height:92vh;overflow-y:auto;border-radius:20px;background:#0b1740;border:1px solid var(--line);
+         box-shadow:0 30px 80px rgba(0,0,0,.6);animation:pop .45s cubic-bezier(.2,1.4,.4,1);overscroll-behavior:contain;scrollbar-width:none}
+  .sheet::-webkit-scrollbar{display:none}
+  @keyframes pop{0%{transform:scale(.6) translateY(30px);opacity:0}100%{transform:none;opacity:1}}
+  .art{position:relative;aspect-ratio:1;overflow:hidden;background:radial-gradient(circle at 50% 45%,var(--c1,#555),var(--c2,#222) 75%)}
+  .art .rays{position:absolute;inset:-50%;background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.12) 0deg 8deg,transparent 8deg 22deg);
+             animation:rays 16s linear infinite;mask:radial-gradient(circle,#000 18%,transparent 58%);-webkit-mask:radial-gradient(circle,#000 18%,transparent 58%)}
+  @keyframes rays{to{transform:rotate(360deg)}}
+  .art .flash{position:absolute;inset:0;background:#fff;animation:flash .5s ease-out forwards;pointer-events:none}
+  @keyframes flash{from{opacity:.85}to{opacity:0}}
+  .art img{position:relative;width:100%;height:100%;object-fit:contain;animation:rise .6s .1s cubic-bezier(.2,1.3,.4,1) both}
+  @keyframes rise{from{transform:translateY(40px) scale(.85);opacity:0}}
+  .art iframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:2}
+  .play{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);border:0;border-radius:999px;padding:10px 18px;z-index:3;
+        background:#fff;color:#0b1d4f;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+  .x{position:absolute;top:12px;right:12px;z-index:4;width:32px;height:32px;border-radius:50%;border:0;background:rgba(0,0,0,.4);color:#fff;font-size:14px;font-weight:900;cursor:pointer;backdrop-filter:blur(4px)}
+  .body{padding:16px 18px 18px;animation:up .45s .15s ease both}
+  @keyframes up{from{transform:translateY(14px);opacity:0}}
+  .body h3{margin:0;font-family:Anton,sans-serif;text-transform:uppercase;font-size:28px;font-weight:400;letter-spacing:.5px;line-height:1}
+  .body .sub{color:var(--mut);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.5px;margin-top:6px}
+  .desc{margin:10px 0 0;font-size:14px;color:#cfd9f7;line-height:1.45}
+  .body ul{list-style:none;padding:0;margin:14px 0 0;font-size:14px;background:var(--glass);border-radius:12px;padding:2px 12px}
+  .body li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .body li:last-child{border:0}
+  .body li span:first-child{color:var(--mut)}
+  .body li .price{margin:0}
+  .hist{max-height:140px;overflow-y:auto;font-size:13px;color:#cfd9f7;background:var(--glass);border-radius:12px;padding:10px 12px;columns:2;line-height:1.7}
+  .btns{display:flex;gap:8px;margin-top:14px}
+  .btn{flex:1;border:0;border-radius:12px;padding:13px;font-weight:900;font-size:15px;cursor:pointer}
   .btn.y{background:var(--gold);color:#1a1300}
-  .btn.g{background:rgba(255,255,255,.1);color:#fff}
-  footer{margin-top:30px;text-align:center;font-size:12px;color:var(--mut)}
-  footer a{color:var(--mut)}
+  .btn.g{background:var(--glass);color:#fff;border:1px solid var(--line)}
+
+  /* Map */
+  .mapbox{position:relative;border-radius:var(--r);overflow:auto;background:#0a1640;border:1px solid var(--line);max-height:75vh;touch-action:pan-x pan-y;overscroll-behavior:contain}
+  .mapbox img{display:block;width:100%;transition:width .2s}
+  .zoom{display:flex;gap:8px;justify-content:flex-end;margin:12px 0 10px}
+  .zoom button{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--glass);color:#fff;font:900 20px Inter,sans-serif;cursor:pointer}
+
+  /* Treasure Hours – Gold */
+  .th{position:relative;overflow:hidden;margin-top:12px;border-radius:20px;padding:24px 16px 22px;text-align:center;color:#3a2600;
+      background:linear-gradient(135deg,#fff6c4 0%,#ffe066 22%,#f7c21a 48%,#ffe680 68%,#e9a90b 100%);
+      box-shadow:0 10px 30px rgba(247,194,26,.28),inset 0 1px 0 rgba(255,255,255,.8),inset 0 -2px 0 rgba(160,100,0,.35)}
+  .th::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;
+      background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);transform:skewX(-20deg);animation:shine 3.2s ease-in-out infinite}
+  @keyframes shine{0%{left:-60%}60%,100%{left:130%}}
+  .th > *{position:relative;z-index:1}
+  .th .lbl{display:inline-flex;align-items:center;gap:6px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;font-size:11px;
+      background:rgba(58,38,0,.12);padding:5px 10px;border-radius:999px}
+  .th.live .lbl{background:#3a2600;color:#ffe066}
+  .th.live .lbl::before{content:"";width:7px;height:7px;border-radius:50%;background:#4cff8f;box-shadow:0 0 8px #4cff8f;animation:blink 1.2s infinite}
+  @keyframes blink{50%{opacity:.3}}
+  .th .big{font-family:Anton,sans-serif;font-size:clamp(44px,13vw,68px);letter-spacing:1px;line-height:1.05;margin:12px 0 6px;color:#2e1e00;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+  .th .when{font-weight:700;font-size:14px;color:#5a3d00}
+  .list{margin-top:12px;background:var(--glass);border:1px solid rgba(255,214,70,.25);border-radius:var(--r);padding:2px 14px}
+  .list div{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:600}
+  .list div span:last-child{color:#ffe066}
+  .list div:last-child{border:0}
+  .list .past{opacity:.35;text-decoration:line-through}
+  .note{font-size:13px;color:var(--mut);margin-top:12px;line-height:1.55}
+
+  footer{margin-top:36px;text-align:center;font-size:11px;color:rgba(147,163,207,.6)}
+  footer a{color:inherit}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="title">Item Shop Finder<small>Fortnite · <span id="date">Lädt…</span></small></div>
-    <div class="timer">Neuer Shop in <b id="cd">--:--:--</b></div>
+    <div class="timer">Neuer Shop<b id="cd">--:--:--</b></div>
   </header>
 
-  <div class="bar">
-    <div class="tabs" id="tabs"></div>
-    <div class="search"><input id="q" placeholder="Alle Items durchsuchen… z. B. Copines" autocomplete="off"></div>
+  <div class="season" id="season"></div>
+
+  <div class="nav" id="nav">
+    <button data-v="shop" class="on">Shop</button>
+    <button data-v="map">Map</button>
+    <button data-v="treasure" id="navTreasure">Treasure</button>
   </div>
 
-  <div class="wish" id="wish"><h3>🎉 Auf deiner Wunschliste!</h3><p id="wishText"></p></div>
+  <div id="viewShop">
+    <div class="bar">
+      <div class="search">
+        <input id="q" placeholder="Alle Items durchsuchen" autocomplete="off" enterkeyhint="search">
+        <button class="clear" id="clear" aria-label="Suche löschen">✕</button>
+      </div>
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div class="banner" id="pirate"></div>
+    <div class="banner" id="wish"><div class="ic">🎉</div><div><h3>Favorit im Shop!</h3><p id="wishText"></p></div></div>
+    <div id="shop"><div class="msg"><div class="loader"></div>Shop wird geladen…</div></div>
+  </div>
 
-  <div id="shop"><div class="msg"><div class="loader"></div>Shop wird geladen…</div></div>
+  <div id="viewMap" hidden>
+    <div class="zoom"><button id="zOut">−</button><button id="zIn">+</button></div>
+    <div class="mapbox" id="mapbox"><div class="msg"><div class="loader"></div>Map wird geladen…</div></div>
+  </div>
 
-  <footer>★ antippen = Favorit · Bei Favoriten im Shop bekommst du oben einen Hinweis · Daten von <a href="https://fortnite-api.com" target="_blank">fortnite-api.com</a> · Inoffizielle Fan-Seite</footer>
+  <div id="viewTreasure" hidden></div>
+
+  <footer>Daten von <a href="https://fortnite-api.com" target="_blank">fortnite-api.com</a> · Inoffizielle Fan-Seite</footer>
 </div>
 
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 
 <script>
-const WKEY = "shopRadarWishlist";
-const RARITY = {
-  common:["#8a8a8a","#4a4a4a"], uncommon:["#69bb1e","#175117"], rare:["#2cc3fc","#143977"],
-  epic:["#c359ff","#4b2483"], legendary:["#ea8d23","#78371d"], mythic:["#ffd84c","#a4741a"],
-  icon:["#36b7b7","#235157"], marvel:["#e0373d","#761b1b"], dc:["#5475c7","#243162"],
-  starwars:["#2a4a8a","#081737"], gaminglegends:["#7650e6","#2f1f6a"], dark:["#ff42e7","#5d0c55"],
-  frozen:["#b3dcff","#3a7bb3"], lava:["#ff8a3c","#7a1c0f"], shadow:["#6b6b6b","#121212"], slurp:["#2dd6e6","#0a5e7b"]
-};
-const TYPE_DE = {outfit:"Outfit",emote:"Emote",pickaxe:"Spitzhacke",glider:"Hängegleiter",backpack:"Rücken-Accessoire",
-  wrap:"Lackierung",contrail:"Kondensstreifen",loadingscreen:"Ladebildschirm",music:"Musik",spray:"Spray",emoji:"Emoticon",
-  shoe:"Kicks",bundle:"Bundle",track:"Jam Track",car:"Auto",instrument:"Instrument",other:"Item"};
-const TABS = [["all","Alles"],["wish","★ Wunschliste"],["outfit","Outfits"],["emote","Emotes"],["pickaxe","Spitzhacken"],
-  ["glider","Gleiter"],["backpack","Rücken"],["wrap","Lackierungen"],["shoe","Kicks"],["track","Jam Tracks"],["car","Autos"],["instrument","Instrumente"],["bundle","Bundles"]];
+/* ===== Zoom & Wischen sperren ===== */
+["gesturestart","gesturechange","gestureend"].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+document.addEventListener("touchmove",e=>{ if(e.touches.length>1 && !e.target.closest("#mapbox")) e.preventDefault(); },{passive:false});
+document.addEventListener("wheel",e=>{ if(e.ctrlKey) e.preventDefault(); },{passive:false});
+document.addEventListener("keydown",e=>{ if((e.ctrlKey||e.metaKey)&&["+","-","=","0"].includes(e.key)) e.preventDefault(); });
 
-let wishlist = loadW(), offers = [], vbuck = "", tab = "all", query = "";
+/* ===== Grunddaten ===== */
+const API="https://fortnite-api.com";
+const WKEY="shopRadarWishlist";
+const RARITY={common:["#8a8a8a","#3a3a3a"],uncommon:["#69bb1e","#134713"],rare:["#2cc3fc","#123572"],epic:["#c359ff","#42207a"],
+  legendary:["#ea8d23","#6e321a"],mythic:["#ffd84c","#9a6c16"],icon:["#36b7b7","#1f4a50"],marvel:["#e0373d","#6b1818"],dc:["#5475c7","#202c5a"],
+  starwars:["#2a4a8a","#071431"],gaminglegends:["#7650e6","#2a1b60"],dark:["#ff42e7","#540a4c"],frozen:["#b3dcff","#346fa3"],
+  lava:["#ff8a3c","#6e190d"],shadow:["#6b6b6b","#101010"],slurp:["#2dd6e6","#09546e"]};
+const TYPE_DE={outfit:"Outfit",emote:"Emote",pickaxe:"Spitzhacke",glider:"Gleiter",backpack:"Rücken-Accessoire",wrap:"Lackierung",
+  contrail:"Kondensstreifen",loadingscreen:"Ladebildschirm",music:"Musik",spray:"Spray",emoji:"Emoticon",shoe:"Kicks",bundle:"Bundle",
+  track:"Jam Track",car:"Auto",instrument:"Instrument",other:"Item"};
+const TABS=[["all","Alles"],["wish","★ Favoriten"],["outfit","Outfits"],["emote","Emotes"],["pickaxe","Spitzhacken"],["glider","Gleiter"],
+  ["backpack","Rücken"],["wrap","Lackierungen"],["shoe","Kicks"],["track","Jam Tracks"],["car","Autos"],["instrument","Instrumente"],["bundle","Bundles"]];
+
+let wishlist=loadW(), offers=[], vbuck="", tab="all", query="";
+const cosCache=new Map();
 
 function loadW(){
   let v=null; try{v=JSON.parse(localStorage.getItem(WKEY));}catch(e){}
   if(!Array.isArray(v)) v=[{id:"EID_AnvilAlarmMoth",name:"Ransom"},{id:"EID_Coping",name:"Copines"}];
-  return v.map(x=>typeof x==="string"?{name:x}:x);
+  return v.map(x=>typeof x==="string"?{name:x}:x).filter(x=>x&&x.name);
 }
 function saveW(){ try{localStorage.setItem(WKEY,JSON.stringify(wishlist));}catch(e){} }
-const norm = s => (s||"").toLowerCase().replace(/[^a-z0-9äöüß]/g,"");
-const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const inWish = name => wishlist.some(w => norm(w.name) === norm(name));
-const favMatch = (id,name) => wishlist.some(w => (id && w.id && w.id.toLowerCase()===id.toLowerCase()) || norm(w.name)===norm(name));
-const hex = c => c ? "#" + c.slice(0,6) : null;
+const norm=s=>(s||"").toLowerCase().replace(/[^a-z0-9äöüß]/g,"");
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const hex=c=>c?"#"+c.slice(0,6):null;
+const sameId=(a,b)=>a&&b&&a.toLowerCase()===b.toLowerCase();
+function isFav(id,name){
+  return wishlist.some(w=> w.id ? sameId(w.id,id) : (norm(name)!=="" && norm(w.name)===norm(name)));
+}
+function toggleFav(id,name){
+  if(isFav(id,name)) wishlist=wishlist.filter(w=>!(w.id?sameId(w.id,id):norm(w.name)===norm(name)));
+  else wishlist.push({id,name});
+  saveW(); buildTabs(); checkWish();
+}
+const fmtD=(d,o)=>new Date(d).toLocaleDateString("de-DE",o||{day:"2-digit",month:"2-digit",year:"numeric"});
 
-/* ---------- Daten laden ---------- */
-async function load(){
+function seriesKey(s){
+  const b=(s?.backendValue||"").toLowerCase();
+  if(!b) return null;
+  if(b.includes("marvel")) return "marvel"; if(b.includes("dc")) return "dc"; if(b.includes("starwars")) return "starwars";
+  if(b.includes("platform")||b.includes("gaming")) return "gaminglegends"; if(b.includes("shadow")) return "shadow";
+  if(b.includes("lava")) return "lava"; if(b.includes("frozen")) return "frozen"; if(b.includes("slurp")) return "slurp";
+  if(b.includes("cube")||b.includes("dark")) return "dark"; return "icon";
+}
+const colorsOf=c=>RARITY[seriesKey(c?.series)||c?.rarity?.value]||RARITY.common;
+
+/* ===== Shop laden ===== */
+async function loadShop(){
   try{
-    const r = await fetch("https://fortnite-api.com/v2/shop");
-    const j = await r.json();
-    const d = j.data || {};
-    vbuck = d.vbuckIcon || "";
-    document.getElementById("date").textContent =
-      new Date(d.date || Date.now()).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
-    offers = (d.entries||[]).map(toOffer).filter(Boolean);
+    const j=await (await fetch(API+"/v2/shop")).json();
+    const d=j.data||{};
+    vbuck=d.vbuckIcon||"";
+    document.getElementById("date").textContent=new Date(d.date||Date.now()).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
+    offers=(d.entries||[]).map(toOffer).filter(Boolean);
     buildTabs(); render(); checkWish();
   }catch(e){
-    document.getElementById("shop").innerHTML =
-      `<div class="msg">Shop konnte nicht geladen werden.<br>Prüfe deine Internetverbindung und lade neu.</div>`;
+    document.getElementById("shop").innerHTML=`<div class="msg">Shop konnte nicht geladen werden.<br>Prüfe deine Internetverbindung.</div>`;
   }
 }
 
 function toOffer(en){
-  const br = en.brItems||[], tr = en.tracks||[], cars = en.cars||[], ins = en.instruments||[];
-  const items = [
-    ...br.map(i=>({id:i.id,name:i.name,type:i.type?.value||"other",rarity:i.rarity?.value,series:i.series,desc:i.description,img:i.images?.featured||i.images?.icon,set:i.set?.value})),
-    ...tr.map(t=>({id:t.id,name:t.title,type:"track",desc:t.artist,img:t.albumArt})),
-    ...cars.map(c=>({id:c.id,name:c.name,type:"car",rarity:c.rarity?.value,series:c.series,desc:c.description,img:c.images?.large||c.images?.small})),
-    ...ins.map(c=>({id:c.id,name:c.name,type:"instrument",rarity:c.rarity?.value,series:c.series,desc:c.description,img:c.images?.large||c.images?.small}))
+  const items=[
+    ...(en.brItems||[]).map(i=>({id:i.id,name:i.name,type:i.type?.value||"other",raw:i})),
+    ...(en.tracks||[]).map(t=>({id:t.id,name:t.title,type:"track",raw:{...t,name:t.title,description:t.artist,images:{icon:t.albumArt}}})),
+    ...(en.cars||[]).map(c=>({id:c.id,name:c.name,type:"car",raw:c})),
+    ...(en.instruments||[]).map(c=>({id:c.id,name:c.name,type:"instrument",raw:c}))
   ];
   if(!items.length) return null;
-  const main = items[0];
-  const isBundle = !!en.bundle || items.length > 1;
-  const render = en.newDisplayAsset?.renderImages?.[0]?.image;
-  let c1 = hex(en.colors?.color1), c2 = hex(en.colors?.color3 || en.colors?.color2);
-  if(!c1){
-    const key = main.series?.backendValue ? seriesKey(main.series) : (main.rarity||"common");
-    [c1,c2] = RARITY[key] || RARITY.common;
-  }
-  const size = String(en.tileSize||"");
+  const main=items[0], bundle=!!en.bundle && items.length>1;
+  let c1=hex(en.colors?.color1), c2=hex(en.colors?.color3||en.colors?.color2);
+  if(!c1) [c1,c2]=colorsOf(main.raw);
   return {
-    name: isBundle && en.bundle?.name ? en.bundle.name : main.name,
-    type: isBundle && en.bundle ? "bundle" : main.type,
-    types: new Set(items.map(i=>i.type).concat(isBundle && en.bundle ? ["bundle"] : [])),
-    rarity: main.series?.value || main.rarity || "",
-    desc: en.bundle?.info || main.desc || "",
-    img: render || main.img || "",
-    items, price: en.finalPrice, regular: en.regularPrice,
-    out: en.outDate, giftable: en.giftable, refundable: en.refundable,
-    section: en.layout?.name || "Featured",
-    sectionRank: en.layout?.rank ?? 999,
-    tag: en.banner?.value || "",
-    c1, c2,
-    wide: /Size_2_x|DoubleWide|Size_3_x|Size_4_x/i.test(size)
+    name: bundle?en.bundle.name:main.name, type: bundle?"bundle":main.type,
+    types:new Set(items.map(i=>i.type).concat(bundle?["bundle"]:[])),
+    img: en.newDisplayAsset?.renderImages?.[0]?.image || main.raw.images?.featured || main.raw.images?.icon || main.raw.images?.large || "",
+    items, main, bundle, price:en.finalPrice, regular:en.regularPrice, out:en.outDate, giftable:en.giftable,
+    section:en.layout?.name||"Featured", rank:en.layout?.rank??999, tag:en.banner?.value||"", c1, c2,
+    wide:/Size_2_x|DoubleWide|Size_3_x|Size_4_x/i.test(String(en.tileSize||""))
   };
 }
-function seriesKey(s){
-  const b=(s.backendValue||"").toLowerCase();
-  if(b.includes("creatorcollab")||b.includes("icon")) return "icon";
-  if(b.includes("marvel")) return "marvel"; if(b.includes("dc")) return "dc";
-  if(b.includes("starwars")) return "starwars"; if(b.includes("platform")||b.includes("gaming")) return "gaminglegends";
-  if(b.includes("shadow")) return "shadow"; if(b.includes("lava")) return "lava"; if(b.includes("frozen")) return "frozen";
-  if(b.includes("slurp")) return "slurp"; if(b.includes("cube")||b.includes("dark")) return "dark";
-  return "icon";
-}
-const offerNames = o => [o.name, ...o.items.map(i=>i.name)];
-const isHit = o => o.items.some(i=>favMatch(i.id,i.name)) || inWish(o.name);
+const offerFav=o=>o.items.some(i=>isFav(i.id,i.name));
+const liveOfferFor=id=>offers.find(o=>o.items.some(i=>sameId(i.id,id)));
+const offerNames=o=>[o.name,...o.items.map(i=>i.name)];
 
-/* ---------- Anzeige ---------- */
+/* ===== Tabs ===== */
 function buildTabs(){
-  const el = document.getElementById("tabs");
-  el.innerHTML = "";
+  const el=document.getElementById("tabs"); el.innerHTML="";
   TABS.forEach(([k,label])=>{
-    const n = k==="all" ? offers.length : k==="wish" ? offers.filter(isHit).length : offers.filter(o=>o.types.has(k)).length;
-    if(k!=="all" && k!=="wish" && !n) return;
-    const b = document.createElement("button");
-    b.className = "tab" + (tab===k?" on":"");
-    b.innerHTML = `${label}<span class="c">${n}</span>`;
-    b.onclick = ()=>{ tab=k; buildTabs(); render(); };
+    const n=k==="all"?offers.length:k==="wish"?wishlist.length:offers.filter(o=>o.types.has(k)).length;
+    if(k!=="all"&&k!=="wish"&&!n) return;
+    const b=document.createElement("button");
+    b.className="tab"+(tab===k?" on":"");
+    b.innerHTML=`${label}<span class="c">${n}</span>`;
+    b.onclick=()=>{ tab=k; buildTabs(); render(); };
     el.appendChild(b);
   });
 }
 
-function priceHTML(o){
-  const icon = vbuck ? `<img src="${vbuck}" alt="">` : "V";
-  const old = o.regular && o.regular > o.price ? ` <s>${o.regular}</s>` : "";
-  return `<div class="price">${icon}${o.price}${old}</div>`;
-}
+/* ===== Anzeige ===== */
+const priceHTML=(p,reg)=>`<div class="price">${vbuck?`<img src="${vbuck}" alt="">`:"V"}${p}${reg&&reg>p?` <s>${reg}</s>`:""}</div>`;
 
 function render(){
   if(query.length>=2) return renderSearch();
-  const shop = document.getElementById("shop");
-  let list = offers.filter(o =>
-    (tab==="all" || (tab==="wish" ? isHit(o) : o.types.has(tab))) &&
-    (!query || offerNames(o).some(n => norm(n).includes(norm(query)))));
-  if(!list.length){
-    shop.innerHTML = `<div class="msg">${tab==="wish" ? "Heute ist nichts von deiner Wunschliste im Shop.<br>Such oben nach einem Item und tippe bei „Alle Items“ auf ★." : "Nichts gefunden."}</div>`;
-    if(tab==="wish" && query) shop.innerHTML += addBtn(query);
-    return;
-  }
-  const groups = new Map();
-  list.sort((a,b)=>a.sectionRank-b.sectionRank).forEach(o=>{
-    if(!groups.has(o.section)) groups.set(o.section,[]);
-    groups.get(o.section).push(o);
-  });
-  shop.innerHTML = "";
-  groups.forEach((arr,name)=>{
-    const s = document.createElement("section");
-    s.innerHTML = `<h2>${esc(name)}</h2><div class="grid"></div>`;
-    const g = s.querySelector(".grid");
-    arr.forEach(o=>g.appendChild(tile(o)));
-    shop.appendChild(s);
-  });
-  if(query && !offers.some(o=>offerNames(o).some(n=>norm(n)===norm(query)))) shop.innerHTML += addBtn(query);
+  if(tab==="wish") return renderWish();
+  const shop=document.getElementById("shop");
+  const list=offers.filter(o=>tab==="all"||o.types.has(tab));
+  if(!list.length){ shop.innerHTML=`<div class="msg">Nichts gefunden.</div>`; return; }
+  const groups=new Map();
+  list.sort((a,b)=>a.rank-b.rank).forEach(o=>{ if(!groups.has(o.section)) groups.set(o.section,[]); groups.get(o.section).push(o); });
+  shop.innerHTML="";
+  groups.forEach((arr,name)=>shop.appendChild(sectionEl(name,arr.map(offerTile))));
 }
 
-function addBtn(q){
-  return `<div class="msg" style="padding:20px"><button class="btn y" style="max-width:340px;width:100%" onclick="addWish('${esc(q).replace(/'/g,"")}')">★ „${esc(q)}" auf die Wunschliste</button></div>`;
+function sectionEl(title,tiles,emptyText){
+  const s=document.createElement("section");
+  s.innerHTML=`<h2>${esc(title)}</h2>`;
+  if(tiles.length){ const g=document.createElement("div"); g.className="grid"; tiles.forEach(t=>g.appendChild(t)); s.appendChild(g); }
+  else if(emptyText) s.innerHTML+=`<div class="msg s">${emptyText}</div>`;
+  return s;
 }
-function addWish(n){ if(n && !inWish(n)){ wishlist.push({name:n}); saveW(); } buildTabs(); render(); checkWish(); }
 
-function tile(o){
-  const d = document.createElement("div");
-  d.className = "tile" + (o.wide?" wide":"") + (isHit(o)?" hit":"");
-  d.style.setProperty("--c1",o.c1); d.style.setProperty("--c2",o.c2);
-  d.innerHTML = `
-    ${o.img ? `<img src="${o.img}" alt="" loading="lazy">` : ""}
-    <div class="shade"></div>
-    ${o.tag ? `<div class="tag">${esc(o.tag)}</div>` : ""}
-    <button class="star ${isHit(o)?"on":""}" title="Wunschliste">★</button>
-    <div class="info">
-      <div class="name">${esc(o.name)}</div>
-      <div class="type">${TYPE_DE[o.type]||"Item"}${o.items.length>1?` · ${o.items.length} Items`:""}</div>
-      ${priceHTML(o)}
-    </div>`;
-  d.querySelector(".star").onclick = e => { e.stopPropagation(); toggleWish(o); };
-  d.onclick = () => openModal(o);
+function baseTile({img,c1,c2,name,inner,fav,wide,tag,onStar,onOpen}){
+  const d=document.createElement("div");
+  d.className="tile"+(wide?" wide":"")+(fav?" hit":"");
+  d.style.setProperty("--c1",c1); d.style.setProperty("--c2",c2);
+  d.innerHTML=`${img?`<img src="${img}" alt="" loading="lazy">`:""}<div class="shade"></div>
+    ${tag?`<div class="tag">${esc(tag)}</div>`:""}
+    <button class="star ${fav?"on":""}" aria-label="Favorit">${fav?"★":"☆"}</button>
+    <div class="info"><div class="name">${esc(name)}</div>${inner}</div>`;
+  d.querySelector(".star").onclick=e=>{ e.stopPropagation(); onStar(); };
+  d.onclick=onOpen;
   return d;
 }
 
-function toggleWish(o){
-  if(isHit(o)) wishlist = wishlist.filter(w => !o.items.some(i=>(w.id&&i.id&&w.id.toLowerCase()===i.id.toLowerCase())||norm(w.name)===norm(i.name)) && norm(w.name)!==norm(o.name));
-  else { const m=o.items[0]; wishlist.push({id:o.items.length===1?m.id:undefined,name:o.items.length===1?m.name:o.name}); }
-  saveW(); buildTabs(); render(); checkWish();
+function offerTile(o){
+  return baseTile({img:o.img,c1:o.c1,c2:o.c2,name:o.name,wide:o.wide,tag:o.tag,fav:offerFav(o),
+    inner:priceHTML(o.price,o.regular),
+    onStar:()=>{ const m=o.main; toggleFav(m.id,m.name); render(); },
+    onOpen:()=>openDetail(o.main.raw,o)});
 }
 
-function openModal(o){
-  const out = o.out ? new Date(o.out).toLocaleString("de-DE",{weekday:"long",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}) : "–";
-  const sheet = document.getElementById("sheet");
-  sheet.style.setProperty("--c1",o.c1); sheet.style.setProperty("--c2",o.c2);
-  sheet.innerHTML = `
-    <div class="art">${o.img?`<img src="${o.img}" alt="">`:""}</div>
-    <div class="body">
-      <h3>${esc(o.name)}</h3>
-      <div class="sub">${TYPE_DE[o.type]||"Item"}${o.rarity?" · "+esc(o.rarity):""}</div>
-      ${o.desc?`<div class="desc">${esc(o.desc)}</div>`:""}
-      <ul>
-        <li><span>Preis</span><span>${priceHTML(o)}</span></li>
-        <li><span>Im Shop bis</span><span>${out}</span></li>
-        <li><span>Verschenkbar</span><span>${o.giftable?"Ja":"Nein"}</span></li>
-        ${o.items.length>1?`<li><span>Enthält</span><span style="text-align:right">${o.items.map(i=>esc(i.name)).join("<br>")}</span></li>`:""}
-      </ul>
-      <div class="btns">
-        <button class="btn y" id="mw">${isHit(o)?"★ Entfernen":"★ Wunschliste"}</button>
-        <button class="btn g" id="mc">Schließen</button>
-      </div>
-    </div>`;
-  document.getElementById("mw").onclick = ()=>{ toggleWish(o); openModal(o); };
-  document.getElementById("mc").onclick = closeModal;
-  document.getElementById("modal").classList.add("show");
-}
-function closeModal(){ document.getElementById("modal").classList.remove("show"); }
-document.getElementById("modal").onclick = e => { if(e.target.id==="modal") closeModal(); };
-
-function checkWish(){
-  const hits = offers.filter(isHit);
-  const box = document.getElementById("wish");
-  if(!hits.length){ box.classList.remove("show"); return; }
-  box.classList.add("show");
-  document.getElementById("wishText").innerHTML = hits.map(h=>`<b>${esc(h.name)}</b> (${h.price} V-Bucks)`).join(" · ") + " ist heute im Shop!";
-  try{
-    if("Notification" in window){
-      const send=()=>new Notification("Fortnite Item Shop Finder",{body:hits.map(h=>h.name).join(", ")+" ist im Shop!"});
-      if(Notification.permission==="granted") send();
-      else if(Notification.permission!=="denied") Notification.requestPermission().then(p=>{if(p==="granted")send();});
-    }
-  }catch(e){}
+function cosTile(c,rerender){
+  const [c1,c2]=colorsOf(c), live=liveOfferFor(c.id), hist=c.shopHistory||[];
+  const inner=live?`<div class="meta live">● Jetzt im Shop</div>`
+    : hist.length?`<div class="meta">Zuletzt: ${fmtD(hist[hist.length-1])}</div>`:`<div class="meta">Nie im Shop</div>`;
+  return baseTile({img:c.images?.featured||c.images?.icon||c.images?.smallIcon||"",c1,c2,name:c.name,fav:isFav(c.id,c.name),inner,
+    onStar:()=>{ toggleFav(c.id,c.name); rerender(); },
+    onOpen:()=>openDetail(c,live)});
 }
 
-/* ---------- Countdown bis 01:00 (00:00 UTC) ---------- */
-function tick(){
-  const now = new Date(), next = new Date(now);
-  next.setUTCHours(24,0,0,0);
-  const s = Math.max(0, Math.floor((next-now)/1000));
-  const p = n => String(n).padStart(2,"0");
-  document.getElementById("cd").textContent = `${p(Math.floor(s/3600))}:${p(Math.floor(s%3600/60))}:${p(s%60)}`;
-  if(s===0) setTimeout(load, 15000);
-}
-setInterval(tick,1000); tick();
-
+/* ===== Suche ===== */
 let searchTimer=null, allResults=[], allState="idle", lastQ="";
-document.getElementById("q").addEventListener("input", e => {
-  query = e.target.value.trim(); render();
+const qEl=document.getElementById("q"), clearEl=document.getElementById("clear");
+qEl.addEventListener("input",()=>{
+  query=qEl.value.trim(); clearEl.classList.toggle("show",qEl.value.length>0);
   clearTimeout(searchTimer);
-  if(query.length>=2) searchTimer=setTimeout(()=>searchAll(query),400);
+  if(query.length>=2){ allState="loading"; searchTimer=setTimeout(()=>searchAll(query),350); }
+  render();
 });
+qEl.addEventListener("keydown",e=>{ if(e.key==="Enter") qEl.blur(); });
+clearEl.onclick=()=>{ qEl.value=""; query=""; clearEl.classList.remove("show"); render(); window.scrollTo({top:0,behavior:"smooth"}); };
 
 async function searchAll(q){
-  lastQ=q; allState="loading"; renderSearch();
+  lastQ=q;
   try{
-    const r = await fetch("https://fortnite-api.com/v2/cosmetics/br/search/all?matchMethod=contains&name="+encodeURIComponent(q));
-    const j = await r.json();
+    const j=await (await fetch(`${API}/v2/cosmetics/br/search/all?matchMethod=contains&name=${encodeURIComponent(q)}`)).json();
     if(q!==lastQ) return;
-    allResults = (Array.isArray(j.data)?j.data:[]).sort((a,b)=>
-      (norm(a.name).startsWith(norm(q))?0:1)-(norm(b.name).startsWith(norm(q))?0:1) || a.name.localeCompare(b.name)).slice(0,80);
+    allResults=(Array.isArray(j.data)?j.data:[]).sort((a,b)=>
+      (norm(a.name).startsWith(norm(q))?0:1)-(norm(b.name).startsWith(norm(q))?0:1)||a.name.localeCompare(b.name)).slice(0,90);
+    allResults.forEach(c=>cosCache.set(c.id.toLowerCase(),c));
     allState="done";
   }catch(e){ if(q===lastQ){ allResults=[]; allState="error"; } }
   if(q===query) renderSearch();
 }
 
 function renderSearch(){
-  const shop = document.getElementById("shop");
-  const inShop = offers.filter(o => offerNames(o).some(n => norm(n).includes(norm(query))));
-  shop.innerHTML = "";
-  const s1 = document.createElement("section");
-  s1.innerHTML = `<h2>Im Item Shop</h2>`;
-  if(inShop.length){ const g=document.createElement("div"); g.className="grid"; inShop.forEach(o=>g.appendChild(tile(o))); s1.appendChild(g); }
-  else s1.innerHTML += `<div class="msg" style="padding:18px">Gerade nicht im Shop.</div>`;
-  shop.appendChild(s1);
-
-  const s2 = document.createElement("section");
-  s2.innerHTML = `<h2>Alle Items</h2>`;
-  if(allState==="loading" || query!==lastQ) s2.innerHTML += `<div class="msg" style="padding:18px"><div class="loader"></div>Suche…</div>`;
-  else if(allState==="error") s2.innerHTML += `<div class="msg" style="padding:18px">Suche fehlgeschlagen.</div>`;
-  else if(!allResults.length) s2.innerHTML += `<div class="msg" style="padding:18px">Nichts gefunden.</div>`;
-  else { const g=document.createElement("div"); g.className="grid"; allResults.forEach(c=>g.appendChild(cosTile(c))); s2.appendChild(g); }
-  shop.appendChild(s2);
+  const shop=document.getElementById("shop");
+  const inShop=offers.filter(o=>offerNames(o).some(n=>norm(n).includes(norm(query))));
+  shop.innerHTML="";
+  shop.appendChild(sectionEl("Im Item Shop",inShop.map(offerTile),"Gerade nicht im Shop."));
+  const s=document.createElement("section"); s.innerHTML="<h2>Alle Items</h2>";
+  if(allState==="loading"||query!==lastQ) s.innerHTML+=`<div class="msg s"><div class="loader"></div>Suche…</div>`;
+  else if(allState==="error") s.innerHTML+=`<div class="msg s">Suche fehlgeschlagen.</div>`;
+  else if(!allResults.length) s.innerHTML+=`<div class="msg s">Nichts gefunden.</div>`;
+  else { const g=document.createElement("div"); g.className="grid"; allResults.forEach(c=>g.appendChild(cosTile(c,renderSearch))); s.appendChild(g); }
+  shop.appendChild(s);
 }
 
-function cosToItem(c){
-  const key = c.series?.backendValue ? seriesKey(c.series) : (c.rarity?.value||"common");
-  const [c1,c2] = RARITY[key] || RARITY.common;
-  const hist = c.shopHistory||[];
-  const live = offers.find(o=>o.items.some(i=>i.id&&i.id.toLowerCase()===c.id.toLowerCase()));
-  return {c, c1, c2, live, last: hist.length?hist[hist.length-1]:null, count: hist.length,
-          img: c.images?.featured||c.images?.icon||c.images?.smallIcon||""};
+/* ===== Favoriten ===== */
+async function getCos(w){
+  if(w.id && cosCache.has(w.id.toLowerCase())) return cosCache.get(w.id.toLowerCase());
+  try{
+    const url=w.id?`${API}/v2/cosmetics/br/${encodeURIComponent(w.id)}`:`${API}/v2/cosmetics/br/search?name=${encodeURIComponent(w.name)}`;
+    const j=await (await fetch(url)).json();
+    if(j.data){ cosCache.set(j.data.id.toLowerCase(),j.data); return j.data; }
+  }catch(e){}
+  return null;
+}
+async function renderWish(){
+  const shop=document.getElementById("shop");
+  if(!wishlist.length){ shop.innerHTML=`<div class="msg">Noch keine Favoriten.<br>Such oben nach einem Item und tippe auf ☆.</div>`; return; }
+  shop.innerHTML=`<div class="msg"><div class="loader"></div>Favoriten werden geladen…</div>`;
+  const list=(await Promise.all(wishlist.map(getCos))).filter(Boolean);
+  if(tab!=="wish"||query.length>=2) return;
+  const live=list.filter(c=>liveOfferFor(c.id)), not=list.filter(c=>!liveOfferFor(c.id));
+  shop.innerHTML="";
+  shop.appendChild(sectionEl("Jetzt im Shop",live.map(c=>cosTile(c,renderWish)),"Heute ist keiner deiner Favoriten im Shop."));
+  shop.appendChild(sectionEl("Nicht im Shop",not.map(c=>cosTile(c,renderWish)),"–"));
 }
 
-function cosTile(c){
-  const x = cosToItem(c), fav = favMatch(c.id,c.name);
-  const d = document.createElement("div");
-  d.className = "tile" + (fav?" hit":"");
-  d.style.setProperty("--c1",x.c1); d.style.setProperty("--c2",x.c2);
-  const sub = x.live ? `<div class="price" style="color:var(--ok)">● Jetzt im Shop</div>`
-    : x.last ? `<div class="price" style="font-size:12px;opacity:.85">Zuletzt: ${new Date(x.last).toLocaleDateString("de-DE")}</div>`
-    : `<div class="price" style="font-size:12px;opacity:.7">Nie im Shop</div>`;
-  d.innerHTML = `
-    ${x.img?`<img src="${x.img}" alt="" loading="lazy">`:""}
-    <div class="shade"></div>
-    <button class="star ${fav?"on":""}" title="Favorit">★</button>
-    <div class="info"><div class="name">${esc(c.name)}</div>
-      <div class="type">${esc(c.type?.displayValue||"Item")}</div>${sub}</div>`;
-  d.querySelector(".star").onclick = e => { e.stopPropagation(); toggleFavCos(c); };
-  d.onclick = () => openCosModal(c);
-  return d;
+function checkWish(){
+  const hits=offers.filter(offerFav), box=document.getElementById("wish");
+  if(!hits.length){ box.classList.remove("show"); return; }
+  box.classList.add("show");
+  document.getElementById("wishText").innerHTML=hits.map(h=>`<b>${esc(h.name)}</b> (${h.price} V-Bucks)`).join(" · ")+" ist heute im Shop!";
+  try{
+    if("Notification" in window){
+      const send=()=>new Notification("Fortnite Item Shop Finder",{body:hits.map(h=>h.name).join(", ")+" ist im Shop!"});
+      if(Notification.permission==="granted") send();
+      else if(Notification.permission!=="denied") Notification.requestPermission().then(p=>{ if(p==="granted") send(); });
+    }
+  }catch(e){}
 }
 
-function toggleFavCos(c){
-  if(favMatch(c.id,c.name)) wishlist = wishlist.filter(w => !((w.id&&w.id.toLowerCase()===c.id.toLowerCase())||norm(w.name)===norm(c.name)));
-  else wishlist.push({id:c.id,name:c.name});
-  saveW(); buildTabs(); checkWish(); renderSearch();
+/* ===== Detail-Ansicht ===== */
+function prediction(hist){
+  const days=[...new Set(hist.map(d=>d.slice(0,10)))].sort();
+  if(days.length<2) return null;
+  const gaps=[]; for(let i=1;i<days.length;i++) gaps.push((new Date(days[i])-new Date(days[i-1]))/864e5);
+  const big=gaps.filter(g=>g>2); if(!big.length) return null;
+  const avg=big.reduce((a,b)=>a+b,0)/big.length;
+  const next=new Date(new Date(days[days.length-1]).getTime()+avg*864e5);
+  return {avg:Math.round(avg), next};
 }
 
-function openCosModal(c){
-  const x = cosToItem(c), fav = favMatch(c.id,c.name);
-  const sheet = document.getElementById("sheet");
-  sheet.style.setProperty("--c1",x.c1); sheet.style.setProperty("--c2",x.c2);
-  sheet.innerHTML = `
-    <div class="art">${x.img?`<img src="${x.img}" alt="">`:""}</div>
-    <div class="body">
-      <h3>${esc(c.name)}</h3>
-      <div class="sub">${esc(c.type?.displayValue||"Item")} · ${esc(c.series?.value||c.rarity?.displayValue||"")}</div>
+async function openDetail(c,offer){
+  const full=(c.id&&cosCache.get(c.id.toLowerCase())) || c;
+  draw(full,offer);
+  if(!full.shopHistory && c.id && !["track"].includes(offer?.main?.type)){
+    const fetched=await getCos({id:c.id,name:c.name});
+    if(fetched && document.getElementById("modal").classList.contains("show")) draw(fetched,offer,true);
+  }
+}
+
+function draw(c,offer,noAnim){
+  const [c1,c2]=offer?[offer.c1,offer.c2]:colorsOf(c);
+  const live=offer||liveOfferFor(c.id);
+  const hist=c.shopHistory||[], pred=prediction(hist), video=c.showcaseVideo;
+  const fav=isFav(c.id,c.name);
+  const img=(offer&&offer.bundle?offer.img:null)||c.images?.featured||c.images?.icon||c.images?.large||offer?.img||"";
+  const title=offer&&offer.bundle?offer.name:c.name;
+  const sheet=document.getElementById("sheet");
+  sheet.style.setProperty("--c1",c1); sheet.style.setProperty("--c2",c2);
+  sheet.style.animation=noAnim?"none":"";
+  sheet.innerHTML=`
+    <div class="art" id="art"><div class="rays"></div>${noAnim?"":'<div class="flash"></div>'}
+      ${img?`<img src="${img}" alt="" style="${noAnim?"animation:none":""}">`:""}
+      <button class="x" id="mx">✕</button>
+      ${video?`<button class="play" id="play">▶ Tanz &amp; Musik</button>`:""}
+    </div>
+    <div class="body" style="${noAnim?"animation:none":""}">
+      <h3>${esc(title)}</h3>
+      <div class="sub">${esc(offer&&offer.bundle?"Bundle":(c.type?.displayValue||TYPE_DE[offer?.main?.type]||"Item"))}${c.series?.value||c.rarity?.displayValue?" · "+esc(c.series?.value||c.rarity?.displayValue):""}</div>
       ${c.description?`<div class="desc">${esc(c.description)}</div>`:""}
       <ul>
-        <li><span>Status</span><span>${x.live?'<b style="color:var(--ok)">Jetzt im Shop</b>':"Nicht im Shop"}</span></li>
-        ${x.live?`<li><span>Preis</span><span>${priceHTML(x.live)}</span></li>`:""}
-        <li><span>Zuletzt im Shop</span><span>${x.last?new Date(x.last).toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"}):"–"}</span></li>
-        <li><span>Wie oft im Shop</span><span>${x.count}×</span></li>
+        <li><span>Status</span><span>${live?'<b style="color:var(--ok)">Jetzt im Shop</b>':"Nicht im Shop"}</span></li>
+        ${live?`<li><span>Preis</span><span>${priceHTML(live.price,live.regular)}</span></li>
+                <li><span>Im Shop bis</span><span>${live.out?new Date(live.out).toLocaleString("de-DE",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"–"}</span></li>
+                <li><span>Verschenkbar</span><span>${live.giftable?"Ja":"Nein"}</span></li>`:""}
+        ${offer&&offer.bundle?`<li><span>Enthält</span><span style="text-align:right">${offer.items.map(i=>esc(i.name)).join("<br>")}</span></li>`:""}
+        <li><span>Wie oft im Shop</span><span>${hist.length}×</span></li>
+        ${hist.length?`<li><span>Zuletzt im Shop</span><span>${fmtD(hist[hist.length-1],{day:"numeric",month:"long",year:"numeric"})}</span></li>`:""}
+        ${pred&&!live?`<li><span>Kommt evtl. wieder</span><span>ca. ${fmtD(pred.next,{day:"numeric",month:"long",year:"numeric"})}</span></li>`:""}
         ${c.introduction?.text?`<li><span>Eingeführt</span><span style="text-align:right">${esc(c.introduction.text)}</span></li>`:""}
       </ul>
+      ${hist.length?`<div class="sub" style="margin:4px 0 6px">Shop-Verlauf</div><div class="hist">${hist.slice().reverse().map(d=>fmtD(d)).join("<br>")}</div>`:""}
+      ${pred&&!live?`<div class="note">Schätzung: kommt im Schnitt alle ${pred.avg} Tage wieder. Kein offizieller Termin.</div>`:""}
       <div class="btns">
-        <button class="btn y" id="mw">${fav?"★ Entfernen":"★ Favorit"}</button>
+        <button class="btn y" id="mw">${fav?"★ Favorit":"☆ Favorit"}</button>
         <button class="btn g" id="mc">Schließen</button>
       </div>
     </div>`;
-  document.getElementById("mw").onclick = ()=>{ toggleFavCos(c); openCosModal(c); };
-  document.getElementById("mc").onclick = closeModal;
+  document.getElementById("mw").onclick=()=>{ toggleFav(c.id,c.name); draw(c,offer,true); render(); };
+  document.getElementById("mc").onclick=closeModal;
+  document.getElementById("mx").onclick=closeModal;
+  if(video) document.getElementById("play").onclick=()=>{
+    document.getElementById("art").innerHTML+=`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(video)}?autoplay=1&playsinline=1&rel=0&loop=1&playlist=${encodeURIComponent(video)}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    document.getElementById("play")?.remove();
+    document.getElementById("mx").onclick=closeModal;
+  };
   document.getElementById("modal").classList.add("show");
+  document.body.style.overflow="hidden";
 }
-load();
+function closeModal(){ document.getElementById("modal").classList.remove("show"); document.getElementById("sheet").innerHTML=""; document.body.style.overflow=""; }
+document.getElementById("modal").onclick=e=>{ if(e.target.id==="modal") closeModal(); };
+
+/* ===== Map ===== */
+let mapLoaded=false, mapW=100;
+async function loadMap(){
+  if(mapLoaded) return; mapLoaded=true;
+  const box=document.getElementById("mapbox");
+  try{
+    const j=await (await fetch(API+"/v1/map?language=en")).json();
+    const src=j.data?.images?.pois||j.data?.images?.blank;
+    box.innerHTML=src?`<img id="mapimg" src="${src}" alt="Fortnite Map">`:`<div class="msg">Keine Map gefunden.</div>`;
+  }catch(e){ mapLoaded=false; box.innerHTML=`<div class="msg">Map konnte nicht geladen werden.</div>`; }
+}
+function zoomMap(d){ mapW=Math.min(400,Math.max(100,mapW+d)); const i=document.getElementById("mapimg"); if(i) i.style.width=mapW+"%"; }
+document.getElementById("zIn").onclick=()=>zoomMap(50);
+document.getElementById("zOut").onclick=()=>zoomMap(-50);
+
+/* ===== Treasure Hours (nur Treasure-Hunters-Season, bis 5.12.2026) ===== */
+const SEASON_END=new Date("2026-12-05T14:00:00Z");
+const TH=[ // Samstags 14–16 und 21–23 Uhr ET (laut Berichten) – in UTC
+  ["2026-11-21T19:00:00Z","2026-11-21T21:00:00Z"],["2026-11-22T02:00:00Z","2026-11-22T04:00:00Z"],
+  ["2026-11-28T19:00:00Z","2026-11-28T21:00:00Z"],["2026-11-29T02:00:00Z","2026-11-29T04:00:00Z"]
+].map(([a,b])=>({a:new Date(a),b:new Date(b)}));
+const seasonActive=()=>new Date()<SEASON_END;
+const de=(d,o)=>d.toLocaleString("de-DE",Object.assign({timeZone:"Europe/Berlin"},o));
+const dur=s=>{ const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),x=s%60,p=n=>String(n).padStart(2,"0");
+  return (d?d+"T ":"")+p(h)+":"+p(m)+":"+p(x); };
+function thState(){
+  const now=new Date();
+  const cur=TH.find(w=>now>=w.a&&now<w.b); if(cur) return {live:true,w:cur,s:Math.floor((cur.b-now)/1000)};
+  const nx=TH.find(w=>w.a>now); if(nx) return {live:false,w:nx,s:Math.floor((nx.a-now)/1000)};
+  return null;
+}
+function renderTreasure(){
+  const el=document.getElementById("viewTreasure"), st=thState(), now=new Date();
+  const timeTxt=w=>`${de(w.a,{weekday:"long",day:"numeric",month:"long"})} · ${de(w.a,{hour:"2-digit",minute:"2-digit"})}–${de(w.b,{hour:"2-digit",minute:"2-digit"})} Uhr`;
+  el.innerHTML=`
+    <div class="th ${st?.live?"live":""}">
+      <div class="lbl">${st?(st.live?"Live · endet in":"🏴‍☠️ Nächste Treasure Hours"):"Keine Treasure Hours mehr"}</div>
+      <div class="big" id="thcd">${st?dur(st.s):"–"}</div>
+      <div class="when">${st?timeTxt(st.w):"Die Treasure-Hunters-Season endet am 5. Dezember."}</div>
+    </div>
+    <div class="list">${TH.map(w=>`<div class="${w.b<now?"past":""}"><span>${de(w.a,{weekday:"short",day:"2-digit",month:"2-digit"})}</span><span>${de(w.a,{hour:"2-digit",minute:"2-digit"})}–${de(w.b,{hour:"2-digit",minute:"2-digit"})} Uhr</span></div>`).join("")}</div>
+    <div class="note">
+      <b>Pirate Shop Token:</b> normal 1 zu 137.500 pro Truhe, in den Treasure Hours 1,5× so hoch (offiziell von Epic).<br>
+      Ein 20× Bonus um 4 Uhr nachts ist <b>nicht bestätigt</b>. Das zweite Zeitfenster liegt in Deutschland aber nachts von 03–05 Uhr.<br>
+      Zeiten in deutscher Zeit, laut Berichten. Im Spiel kann es sich ändern.
+    </div>`;
+}
+function updatePirateBanner(){
+  const b=document.getElementById("pirate"), st=thState();
+  if(!seasonActive()||!st){ b.classList.remove("show"); return; }
+  b.classList.add("show");
+  b.innerHTML=`<div class="ic">🏴‍☠️</div><div><h3>${st.live?"Treasure Hours laufen!":"Treasure Hours"}</h3>
+    <p>${st.live?"Noch":"In"} <b>${dur(st.s)}</b> · 1,5× Chance auf den Pirate Token</p></div>`;
+}
+document.getElementById("pirate").onclick=()=>showView("treasure");
+if(!seasonActive()) document.getElementById("navTreasure").remove();
+
+/* ===== Season-Info ===== */
+const SEASONS=[
+  {ch:"Chapter 7",name:"Mini-Season: Treasure Hunters",start:"2026-11-01",end:"2026-12-05",endTxt:"Sa, 5. Dezember 2026"}
+];
+function renderSeason(){
+  const el=document.getElementById("season"), now=new Date();
+  const cur=SEASONS.find(x=>now>=new Date(x.start)&&now<new Date(x.end+"T23:59:59"));
+  if(!cur){ el.innerHTML=`<div class="ch">Neue Season<span>Chapter 8</span></div><div class="end">Infos folgen</div>`; return; }
+  const ms=new Date(cur.end+"T00:00:00")-now, days=Math.max(0,Math.ceil(ms/864e5));
+  el.innerHTML=`<div class="ch">${cur.ch}<span>${cur.name}</span></div>
+    <div class="end">Endet am ${cur.endTxt}<b>${days>0?"noch "+days+(days===1?" Tag":" Tage"):"Heute!"}</b></div>`;
+}
+renderSeason(); setInterval(renderSeason,60000);
+
+/* ===== Navigation ===== */
+function showView(v){
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  document.getElementById("viewShop").hidden=v!=="shop";
+  document.getElementById("viewMap").hidden=v!=="map";
+  document.getElementById("viewTreasure").hidden=v!=="treasure";
+  if(v==="map") loadMap();
+  if(v==="treasure") renderTreasure();
+  window.scrollTo({top:0});
+}
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>showView(b.dataset.v));
+
+/* ===== Countdown Shop-Reset (00:00 UTC = 01:00 Uhr) ===== */
+function tick(){
+  const now=new Date(), next=new Date(now); next.setUTCHours(24,0,0,0);
+  const s=Math.max(0,Math.floor((next-now)/1000)), p=n=>String(n).padStart(2,"0");
+  document.getElementById("cd").textContent=`${p(Math.floor(s/3600))}:${p(Math.floor(s%3600/60))}:${p(s%60)}`;
+  if(s===0) setTimeout(loadShop,15000);
+  updatePirateBanner();
+  if(!document.getElementById("viewTreasure").hidden){ const st=thState(), el=document.getElementById("thcd"); if(st&&el) el.textContent=dur(st.s); }
+}
+setInterval(tick,1000); tick();
+loadShop();
 </script>
 </body>
 </html>
