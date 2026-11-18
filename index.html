@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fortnite Item Shop Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#0b1d4f;--bg2:#1a4fc4;--panel:rgba(5,14,45,.55);
+    --txt:#fff;--mut:#9fb3e6;--gold:#ffe23d;--ok:#4cff8f;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{
+    font-family:Inter,system-ui,sans-serif;color:var(--txt);min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #3d7dff 0%, transparent 60%),
+      linear-gradient(180deg,var(--bg2) 0%,var(--bg1) 55%,#060f2e 100%) fixed;
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:18px 16px 60px}
+
+  /* Header */
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .title{font-family:Anton,Impact,sans-serif;font-size:clamp(38px,8vw,64px);line-height:.9;letter-spacing:1px;text-transform:uppercase;font-style:italic;text-shadow:0 4px 0 rgba(0,0,0,.25)}
+  .title small{display:block;font-size:.32em;letter-spacing:3px;color:var(--mut);font-style:normal;margin-top:6px}
+  .timer{background:var(--panel);border-radius:10px;padding:8px 12px;font-weight:700;font-size:14px;display:flex;gap:8px;align-items:center;backdrop-filter:blur(6px)}
+  .timer b{font-family:Anton,sans-serif;font-size:20px;letter-spacing:1px;color:var(--gold)}
+
+  /* Toolbar */
+  .bar{position:sticky;top:0;z-index:20;padding:10px 0;margin:0 -16px 6px;padding-left:16px;padding-right:16px;
+       background:linear-gradient(180deg,rgba(11,29,79,.95),rgba(11,29,79,.75));backdrop-filter:blur(10px)}
+  .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:none;font-family:Anton,sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:15px;
+       padding:8px 14px;border-radius:8px;background:rgba(255,255,255,.08);color:#cfe0ff;border:0;cursor:pointer;transition:.15s}
+  .tab.on{background:var(--gold);color:#1a1300;transform:skew(-6deg)}
+  .tab .c{opacity:.6;font-size:12px;margin-left:4px}
+  .search{display:flex;gap:8px}
+  .search input{flex:1;background:rgba(255,255,255,.1);border:2px solid transparent;border-radius:10px;color:#fff;
+       padding:10px 12px;font:600 15px Inter,sans-serif;outline:none}
+  .search input:focus{border-color:var(--gold)}
+  .search input::placeholder{color:#9fb3e6}
+
+  /* Wishlist banner */
+  .wish{background:linear-gradient(90deg,#0f6b3a,#14894a);border-radius:14px;padding:12px 14px;margin:14px 0 4px;display:none;
+        box-shadow:0 6px 0 rgba(0,0,0,.2)}
+  .wish.show{display:block}
+  .wish h3{margin:0 0 4px;font-family:Anton,sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:20px}
+  .wish p{margin:0;font-size:14px;opacity:.9}
+
+  /* Sections */
+  section{margin-top:22px}
+  section h2{font-family:Anton,sans-serif;text-transform:uppercase;letter-spacing:1.5px;font-size:24px;margin:0 0 10px;
+             display:flex;align-items:center;gap:10px;font-style:italic}
+  section h2::after{content:"";flex:1;height:3px;background:linear-gradient(90deg,rgba(255,255,255,.35),transparent);border-radius:3px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));grid-auto-flow:dense;gap:8px}
+  @media(min-width:700px){.grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
+
+  /* Tiles */
+  .tile{position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;cursor:pointer;
+        background:linear-gradient(180deg,var(--c1,#6a6a6a),var(--c2,#2f2f2f));
+        box-shadow:inset 0 0 0 2px rgba(255,255,255,.12);transition:transform .15s, box-shadow .15s}
+  .tile.wide{grid-column:span 2;aspect-ratio:6/4}
+  .tile:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 3px #fff,0 10px 20px rgba(0,0,0,.35)}
+  .tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top}
+  .tile .shade{position:absolute;left:0;right:0;bottom:0;height:48%;background:linear-gradient(180deg,transparent,rgba(0,0,0,.85))}
+  .tile .info{position:absolute;left:0;right:0;bottom:0;padding:8px 10px}
+  .tile .name{font-family:Anton,sans-serif;text-transform:uppercase;font-size:clamp(15px,2.6vw,19px);line-height:1.05;
+              letter-spacing:.5px;text-shadow:0 2px 3px rgba(0,0,0,.6);word-break:break-word}
+  .tile .type{font-size:11px;font-weight:700;color:#d6e2ff;opacity:.85;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+  .price{display:flex;align-items:center;gap:5px;margin-top:5px;font-weight:900;font-size:14px}
+  .price img{position:static;width:18px;height:18px}
+  .price s{opacity:.55;font-weight:700;font-size:12px}
+  .tag{position:absolute;top:8px;left:8px;background:var(--gold);color:#1a1300;font-family:Anton,sans-serif;
+       text-transform:uppercase;font-size:12px;letter-spacing:.5px;padding:3px 7px;border-radius:5px;transform:skew(-6deg)}
+  .star{position:absolute;top:6px;right:6px;width:32px;height:32px;border-radius:50%;border:0;background:rgba(0,0,0,.35);
+        color:#fff;font-size:17px;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(4px)}
+  .star.on{background:var(--gold);color:#1a1300}
+  .tile.hit{box-shadow:inset 0 0 0 3px var(--ok),0 0 18px rgba(76,255,143,.5)}
+
+  .msg{text-align:center;padding:60px 10px;color:var(--mut);font-weight:700}
+  .loader{width:44px;height:44px;border:4px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;
+          margin:0 auto 14px;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(2,8,30,.8);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+  .modal.show{display:flex}
+  .sheet{width:min(460px,100%);border-radius:16px;overflow:hidden;background:#0c1a48;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .sheet .art{position:relative;aspect-ratio:1;background:linear-gradient(180deg,var(--c1,#555),var(--c2,#222))}
+  .sheet .art img{width:100%;height:100%;object-fit:contain}
+  .sheet .body{padding:14px 16px 16px}
+  .sheet h3{margin:0;font-family:Anton,sans-serif;text-transform:uppercase;font-size:30px;letter-spacing:1px;line-height:1}
+  .sheet .sub{color:var(--mut);font-weight:700;font-size:13px;text-transform:uppercase;margin-top:4px}
+  .sheet .desc{margin:10px 0;font-size:14px;color:#dbe5ff;font-style:italic}
+  .sheet ul{list-style:none;padding:0;margin:10px 0;font-size:14px}
+  .sheet li{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sheet li span:first-child{color:var(--mut)}
+  .btns{display:flex;gap:8px;margin-top:12px}
+  .btn{flex:1;border:0;border-radius:10px;padding:12px;font-family:Anton,sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:16px;cursor:pointer}
+  .btn.y{background:var(--gold);color:#1a1300}
+  .btn.g{background:rgba(255,255,255,.1);color:#fff}
+  footer{margin-top:30px;text-align:center;font-size:12px;color:var(--mut)}
+  footer a{color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">Item Shop Finder<small>Fortnite · <span id="date">Lädt…</span></small></div>
+    <div class="timer">Neuer Shop in <b id="cd">--:--:--</b></div>
+  </header>
+
+  <div class="bar">
+    <div class="tabs" id="tabs"></div>
+    <div class="search"><input id="q" placeholder="Alle Items durchsuchen… z. B. Copines" autocomplete="off"></div>
+  </div>
+
+  <div class="wish" id="wish"><h3>🎉 Auf deiner Wunschliste!</h3><p id="wishText"></p></div>
+
+  <div id="shop"><div class="msg"><div class="loader"></div>Shop wird geladen…</div></div>
+
+  <footer>★ antippen = Favorit · Bei Favoriten im Shop bekommst du oben einen Hinweis · Daten von <a href="https://fortnite-api.com" target="_blank">fortnite-api.com</a> · Inoffizielle Fan-Seite</footer>
+</div>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+
+<script>
+const WKEY = "shopRadarWishlist";
+const RARITY = {
+  common:["#8a8a8a","#4a4a4a"], uncommon:["#69bb1e","#175117"], rare:["#2cc3fc","#143977"],
+  epic:["#c359ff","#4b2483"], legendary:["#ea8d23","#78371d"], mythic:["#ffd84c","#a4741a"],
+  icon:["#36b7b7","#235157"], marvel:["#e0373d","#761b1b"], dc:["#5475c7","#243162"],
+  starwars:["#2a4a8a","#081737"], gaminglegends:["#7650e6","#2f1f6a"], dark:["#ff42e7","#5d0c55"],
+  frozen:["#b3dcff","#3a7bb3"], lava:["#ff8a3c","#7a1c0f"], shadow:["#6b6b6b","#121212"], slurp:["#2dd6e6","#0a5e7b"]
+};
+const TYPE_DE = {outfit:"Outfit",emote:"Emote",pickaxe:"Spitzhacke",glider:"Hängegleiter",backpack:"Rücken-Accessoire",
+  wrap:"Lackierung",contrail:"Kondensstreifen",loadingscreen:"Ladebildschirm",music:"Musik",spray:"Spray",emoji:"Emoticon",
+  shoe:"Kicks",bundle:"Bundle",track:"Jam Track",car:"Auto",instrument:"Instrument",other:"Item"};
+const TABS = [["all","Alles"],["wish","★ Wunschliste"],["outfit","Outfits"],["emote","Emotes"],["pickaxe","Spitzhacken"],
+  ["glider","Gleiter"],["backpack","Rücken"],["wrap","Lackierungen"],["shoe","Kicks"],["track","Jam Tracks"],["car","Autos"],["instrument","Instrumente"],["bundle","Bundles"]];
+
+let wishlist = loadW(), offers = [], vbuck = "", tab = "all", query = "";
+
+function loadW(){
+  let v=null; try{v=JSON.parse(localStorage.getItem(WKEY));}catch(e){}
+  if(!Array.isArray(v)) v=[{id:"EID_AnvilAlarmMoth",name:"Ransom"},{id:"EID_Coping",name:"Copines"}];
+  return v.map(x=>typeof x==="string"?{name:x}:x);
+}
+function saveW(){ try{localStorage.setItem(WKEY,JSON.stringify(wishlist));}catch(e){} }
+const norm = s => (s||"").toLowerCase().replace(/[^a-z0-9äöüß]/g,"");
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const inWish = name => wishlist.some(w => norm(w.name) === norm(name));
+const favMatch = (id,name) => wishlist.some(w => (id && w.id && w.id.toLowerCase()===id.toLowerCase()) || norm(w.name)===norm(name));
+const hex = c => c ? "#" + c.slice(0,6) : null;
+
+/* ---------- Daten laden ---------- */
+async function load(){
+  try{
+    const r = await fetch("https://fortnite-api.com/v2/shop");
+    const j = await r.json();
+    const d = j.data || {};
+    vbuck = d.vbuckIcon || "";
+    document.getElementById("date").textContent =
+      new Date(d.date || Date.now()).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
+    offers = (d.entries||[]).map(toOffer).filter(Boolean);
+    buildTabs(); render(); checkWish();
+  }catch(e){
+    document.getElementById("shop").innerHTML =
+      `<div class="msg">Shop konnte nicht geladen werden.<br>Prüfe deine Internetverbindung und lade neu.</div>`;
+  }
+}
+
+function toOffer(en){
+  const br = en.brItems||[], tr = en.tracks||[], cars = en.cars||[], ins = en.instruments||[];
+  const items = [
+    ...br.map(i=>({id:i.id,name:i.name,type:i.type?.value||"other",rarity:i.rarity?.value,series:i.series,desc:i.description,img:i.images?.featured||i.images?.icon,set:i.set?.value})),
+    ...tr.map(t=>({id:t.id,name:t.title,type:"track",desc:t.artist,img:t.albumArt})),
+    ...cars.map(c=>({id:c.id,name:c.name,type:"car",rarity:c.rarity?.value,series:c.series,desc:c.description,img:c.images?.large||c.images?.small})),
+    ...ins.map(c=>({id:c.id,name:c.name,type:"instrument",rarity:c.rarity?.value,series:c.series,desc:c.description,img:c.images?.large||c.images?.small}))
+  ];
+  if(!items.length) return null;
+  const main = items[0];
+  const isBundle = !!en.bundle || items.length > 1;
+  const render = en.newDisplayAsset?.renderImages?.[0]?.image;
+  let c1 = hex(en.colors?.color1), c2 = hex(en.colors?.color3 || en.colors?.color2);
+  if(!c1){
+    const key = main.series?.backendValue ? seriesKey(main.series) : (main.rarity||"common");
+    [c1,c2] = RARITY[key] || RARITY.common;
+  }
+  const size = String(en.tileSize||"");
+  return {
+    name: isBundle && en.bundle?.name ? en.bundle.name : main.name,
+    type: isBundle && en.bundle ? "bundle" : main.type,
+    types: new Set(items.map(i=>i.type).concat(isBundle && en.bundle ? ["bundle"] : [])),
+    rarity: main.series?.value || main.rarity || "",
+    desc: en.bundle?.info || main.desc || "",
+    img: render || main.img || "",
+    items, price: en.finalPrice, regular: en.regularPrice,
+    out: en.outDate, giftable: en.giftable, refundable: en.refundable,
+    section: en.layout?.name || "Featured",
+    sectionRank: en.layout?.rank ?? 999,
+    tag: en.banner?.value || "",
+    c1, c2,
+    wide: /Size_2_x|DoubleWide|Size_3_x|Size_4_x/i.test(size)
+  };
+}
+function seriesKey(s){
+  const b=(s.backendValue||"").toLowerCase();
+  if(b.includes("creatorcollab")||b.includes("icon")) return "icon";
+  if(b.includes("marvel")) return "marvel"; if(b.includes("dc")) return "dc";
+  if(b.includes("starwars")) return "starwars"; if(b.includes("platform")||b.includes("gaming")) return "gaminglegends";
+  if(b.includes("shadow")) return "shadow"; if(b.includes("lava")) return "lava"; if(b.includes("frozen")) return "frozen";
+  if(b.includes("slurp")) return "slurp"; if(b.includes("cube")||b.includes("dark")) return "dark";
+  return "icon";
+}
+const offerNames = o => [o.name, ...o.items.map(i=>i.name)];
+const isHit = o => o.items.some(i=>favMatch(i.id,i.name)) || inWish(o.name);
+
+/* ---------- Anzeige ---------- */
+function buildTabs(){
+  const el = document.getElementById("tabs");
+  el.innerHTML = "";
+  TABS.forEach(([k,label])=>{
+    const n = k==="all" ? offers.length : k==="wish" ? offers.filter(isHit).length : offers.filter(o=>o.types.has(k)).length;
+    if(k!=="all" && k!=="wish" && !n) return;
+    const b = document.createElement("button");
+    b.className = "tab" + (tab===k?" on":"");
+    b.innerHTML = `${label}<span class="c">${n}</span>`;
+    b.onclick = ()=>{ tab=k; buildTabs(); render(); };
+    el.appendChild(b);
+  });
+}
+
+function priceHTML(o){
+  const icon = vbuck ? `<img src="${vbuck}" alt="">` : "V";
+  const old = o.regular && o.regular > o.price ? ` <s>${o.regular}</s>` : "";
+  return `<div class="price">${icon}${o.price}${old}</div>`;
+}
+
+function render(){
+  if(query.length>=2) return renderSearch();
+  const shop = document.getElementById("shop");
+  let list = offers.filter(o =>
+    (tab==="all" || (tab==="wish" ? isHit(o) : o.types.has(tab))) &&
+    (!query || offerNames(o).some(n => norm(n).includes(norm(query)))));
+  if(!list.length){
+    shop.innerHTML = `<div class="msg">${tab==="wish" ? "Heute ist nichts von deiner Wunschliste im Shop.<br>Such oben nach einem Item und tippe bei „Alle Items“ auf ★." : "Nichts gefunden."}</div>`;
+    if(tab==="wish" && query) shop.innerHTML += addBtn(query);
+    return;
+  }
+  const groups = new Map();
+  list.sort((a,b)=>a.sectionRank-b.sectionRank).forEach(o=>{
+    if(!groups.has(o.section)) groups.set(o.section,[]);
+    groups.get(o.section).push(o);
+  });
+  shop.innerHTML = "";
+  groups.forEach((arr,name)=>{
+    const s = document.createElement("section");
+    s.innerHTML = `<h2>${esc(name)}</h2><div class="grid"></div>`;
+    const g = s.querySelector(".grid");
+    arr.forEach(o=>g.appendChild(tile(o)));
+    shop.appendChild(s);
+  });
+  if(query && !offers.some(o=>offerNames(o).some(n=>norm(n)===norm(query)))) shop.innerHTML += addBtn(query);
+}
+
+function addBtn(q){
+  return `<div class="msg" style="padding:20px"><button class="btn y" style="max-width:340px;width:100%" onclick="addWish('${esc(q).replace(/'/g,"")}')">★ „${esc(q)}" auf die Wunschliste</button></div>`;
+}
+function addWish(n){ if(n && !inWish(n)){ wishlist.push({name:n}); saveW(); } buildTabs(); render(); checkWish(); }
+
+function tile(o){
+  const d = document.createElement("div");
+  d.className = "tile" + (o.wide?" wide":"") + (isHit(o)?" hit":"");
+  d.style.setProperty("--c1",o.c1); d.style.setProperty("--c2",o.c2);
+  d.innerHTML = `
+    ${o.img ? `<img src="${o.img}" alt="" loading="lazy">` : ""}
+    <div class="shade"></div>
+    ${o.tag ? `<div class="tag">${esc(o.tag)}</div>` : ""}
+    <button class="star ${isHit(o)?"on":""}" title="Wunschliste">★</button>
+    <div class="info">
+      <div class="name">${esc(o.name)}</div>
+      <div class="type">${TYPE_DE[o.type]||"Item"}${o.items.length>1?` · ${o.items.length} Items`:""}</div>
+      ${priceHTML(o)}
+    </div>`;
+  d.querySelector(".star").onclick = e => { e.stopPropagation(); toggleWish(o); };
+  d.onclick = () => openModal(o);
+  return d;
+}
+
+function toggleWish(o){
+  if(isHit(o)) wishlist = wishlist.filter(w => !o.items.some(i=>(w.id&&i.id&&w.id.toLowerCase()===i.id.toLowerCase())||norm(w.name)===norm(i.name)) && norm(w.name)!==norm(o.name));
+  else { const m=o.items[0]; wishlist.push({id:o.items.length===1?m.id:undefined,name:o.items.length===1?m.name:o.name}); }
+  saveW(); buildTabs(); render(); checkWish();
+}
+
+function openModal(o){
+  const out = o.out ? new Date(o.out).toLocaleString("de-DE",{weekday:"long",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}) : "–";
+  const sheet = document.getElementById("sheet");
+  sheet.style.setProperty("--c1",o.c1); sheet.style.setProperty("--c2",o.c2);
+  sheet.innerHTML = `
+    <div class="art">${o.img?`<img src="${o.img}" alt="">`:""}</div>
+    <div class="body">
+      <h3>${esc(o.name)}</h3>
+      <div class="sub">${TYPE_DE[o.type]||"Item"}${o.rarity?" · "+esc(o.rarity):""}</div>
+      ${o.desc?`<div class="desc">${esc(o.desc)}</div>`:""}
+      <ul>
+        <li><span>Preis</span><span>${priceHTML(o)}</span></li>
+        <li><span>Im Shop bis</span><span>${out}</span></li>
+        <li><span>Verschenkbar</span><span>${o.giftable?"Ja":"Nein"}</span></li>
+        ${o.items.length>1?`<li><span>Enthält</span><span style="text-align:right">${o.items.map(i=>esc(i.name)).join("<br>")}</span></li>`:""}
+      </ul>
+      <div class="btns">
+        <button class="btn y" id="mw">${isHit(o)?"★ Entfernen":"★ Wunschliste"}</button>
+        <button class="btn g" id="mc">Schließen</button>
+      </div>
+    </div>`;
+  document.getElementById("mw").onclick = ()=>{ toggleWish(o); openModal(o); };
+  document.getElementById("mc").onclick = closeModal;
+  document.getElementById("modal").classList.add("show");
+}
+function closeModal(){ document.getElementById("modal").classList.remove("show"); }
+document.getElementById("modal").onclick = e => { if(e.target.id==="modal") closeModal(); };
+
+function checkWish(){
+  const hits = offers.filter(isHit);
+  const box = document.getElementById("wish");
+  if(!hits.length){ box.classList.remove("show"); return; }
+  box.classList.add("show");
+  document.getElementById("wishText").innerHTML = hits.map(h=>`<b>${esc(h.name)}</b> (${h.price} V-Bucks)`).join(" · ") + " ist heute im Shop!";
+  try{
+    if("Notification" in window){
+      const send=()=>new Notification("Fortnite Item Shop Finder",{body:hits.map(h=>h.name).join(", ")+" ist im Shop!"});
+      if(Notification.permission==="granted") send();
+      else if(Notification.permission!=="denied") Notification.requestPermission().then(p=>{if(p==="granted")send();});
+    }
+  }catch(e){}
+}
+
+/* ---------- Countdown bis 01:00 (00:00 UTC) ---------- */
+function tick(){
+  const now = new Date(), next = new Date(now);
+  next.setUTCHours(24,0,0,0);
+  const s = Math.max(0, Math.floor((next-now)/1000));
+  const p = n => String(n).padStart(2,"0");
+  document.getElementById("cd").textContent = `${p(Math.floor(s/3600))}:${p(Math.floor(s%3600/60))}:${p(s%60)}`;
+  if(s===0) setTimeout(load, 15000);
+}
+setInterval(tick,1000); tick();
+
+let searchTimer=null, allResults=[], allState="idle", lastQ="";
+document.getElementById("q").addEventListener("input", e => {
+  query = e.target.value.trim(); render();
+  clearTimeout(searchTimer);
+  if(query.length>=2) searchTimer=setTimeout(()=>searchAll(query),400);
+});
+
+async function searchAll(q){
+  lastQ=q; allState="loading"; renderSearch();
+  try{
+    const r = await fetch("https://fortnite-api.com/v2/cosmetics/br/search/all?matchMethod=contains&name="+encodeURIComponent(q));
+    const j = await r.json();
+    if(q!==lastQ) return;
+    allResults = (Array.isArray(j.data)?j.data:[]).sort((a,b)=>
+      (norm(a.name).startsWith(norm(q))?0:1)-(norm(b.name).startsWith(norm(q))?0:1) || a.name.localeCompare(b.name)).slice(0,80);
+    allState="done";
+  }catch(e){ if(q===lastQ){ allResults=[]; allState="error"; } }
+  if(q===query) renderSearch();
+}
+
+function renderSearch(){
+  const shop = document.getElementById("shop");
+  const inShop = offers.filter(o => offerNames(o).some(n => norm(n).includes(norm(query))));
+  shop.innerHTML = "";
+  const s1 = document.createElement("section");
+  s1.innerHTML = `<h2>Im Item Shop</h2>`;
+  if(inShop.length){ const g=document.createElement("div"); g.className="grid"; inShop.forEach(o=>g.appendChild(tile(o))); s1.appendChild(g); }
+  else s1.innerHTML += `<div class="msg" style="padding:18px">Gerade nicht im Shop.</div>`;
+  shop.appendChild(s1);
+
+  const s2 = document.createElement("section");
+  s2.innerHTML = `<h2>Alle Items</h2>`;
+  if(allState==="loading" || query!==lastQ) s2.innerHTML += `<div class="msg" style="padding:18px"><div class="loader"></div>Suche…</div>`;
+  else if(allState==="error") s2.innerHTML += `<div class="msg" style="padding:18px">Suche fehlgeschlagen.</div>`;
+  else if(!allResults.length) s2.innerHTML += `<div class="msg" style="padding:18px">Nichts gefunden.</div>`;
+  else { const g=document.createElement("div"); g.className="grid"; allResults.forEach(c=>g.appendChild(cosTile(c))); s2.appendChild(g); }
+  shop.appendChild(s2);
+}
+
+function cosToItem(c){
+  const key = c.series?.backendValue ? seriesKey(c.series) : (c.rarity?.value||"common");
+  const [c1,c2] = RARITY[key] || RARITY.common;
+  const hist = c.shopHistory||[];
+  const live = offers.find(o=>o.items.some(i=>i.id&&i.id.toLowerCase()===c.id.toLowerCase()));
+  return {c, c1, c2, live, last: hist.length?hist[hist.length-1]:null, count: hist.length,
+          img: c.images?.featured||c.images?.icon||c.images?.smallIcon||""};
+}
+
+function cosTile(c){
+  const x = cosToItem(c), fav = favMatch(c.id,c.name);
+  const d = document.createElement("div");
+  d.className = "tile" + (fav?" hit":"");
+  d.style.setProperty("--c1",x.c1); d.style.setProperty("--c2",x.c2);
+  const sub = x.live ? `<div class="price" style="color:var(--ok)">● Jetzt im Shop</div>`
+    : x.last ? `<div class="price" style="font-size:12px;opacity:.85">Zuletzt: ${new Date(x.last).toLocaleDateString("de-DE")}</div>`
+    : `<div class="price" style="font-size:12px;opacity:.7">Nie im Shop</div>`;
+  d.innerHTML = `
+    ${x.img?`<img src="${x.img}" alt="" loading="lazy">`:""}
+    <div class="shade"></div>
+    <button class="star ${fav?"on":""}" title="Favorit">★</button>
+    <div class="info"><div class="name">${esc(c.name)}</div>
+      <div class="type">${esc(c.type?.displayValue||"Item")}</div>${sub}</div>`;
+  d.querySelector(".star").onclick = e => { e.stopPropagation(); toggleFavCos(c); };
+  d.onclick = () => openCosModal(c);
+  return d;
+}
+
+function toggleFavCos(c){
+  if(favMatch(c.id,c.name)) wishlist = wishlist.filter(w => !((w.id&&w.id.toLowerCase()===c.id.toLowerCase())||norm(w.name)===norm(c.name)));
+  else wishlist.push({id:c.id,name:c.name});
+  saveW(); buildTabs(); checkWish(); renderSearch();
+}
+
+function openCosModal(c){
+  const x = cosToItem(c), fav = favMatch(c.id,c.name);
+  const sheet = document.getElementById("sheet");
+  sheet.style.setProperty("--c1",x.c1); sheet.style.setProperty("--c2",x.c2);
+  sheet.innerHTML = `
+    <div class="art">${x.img?`<img src="${x.img}" alt="">`:""}</div>
+    <div class="body">
+      <h3>${esc(c.name)}</h3>
+      <div class="sub">${esc(c.type?.displayValue||"Item")} · ${esc(c.series?.value||c.rarity?.displayValue||"")}</div>
+      ${c.description?`<div class="desc">${esc(c.description)}</div>`:""}
+      <ul>
+        <li><span>Status</span><span>${x.live?'<b style="color:var(--ok)">Jetzt im Shop</b>':"Nicht im Shop"}</span></li>
+        ${x.live?`<li><span>Preis</span><span>${priceHTML(x.live)}</span></li>`:""}
+        <li><span>Zuletzt im Shop</span><span>${x.last?new Date(x.last).toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"}):"–"}</span></li>
+        <li><span>Wie oft im Shop</span><span>${x.count}×</span></li>
+        ${c.introduction?.text?`<li><span>Eingeführt</span><span style="text-align:right">${esc(c.introduction.text)}</span></li>`:""}
+      </ul>
+      <div class="btns">
+        <button class="btn y" id="mw">${fav?"★ Entfernen":"★ Favorit"}</button>
+        <button class="btn g" id="mc">Schließen</button>
+      </div>
+    </div>`;
+  document.getElementById("mw").onclick = ()=>{ toggleFavCos(c); openCosModal(c); };
+  document.getElementById("mc").onclick = closeModal;
+  document.getElementById("modal").classList.add("show");
+}
+load();
+</script>
+</body>
+</html>
